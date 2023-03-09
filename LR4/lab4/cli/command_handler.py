@@ -1,0 +1,40 @@
+from typing import Callable, Tuple
+
+from lab4.core.controller import Controller
+
+
+class CommandHandler:
+    '''
+    Accepts flags and callback function, it will be called when the expected flag is detected
+    @param expected_flags: tuple of length 2
+    @param handler: callback function
+
+    Callback function:\\
+    function signature - Callable[[State, Session, str], None]\\
+    During calling in the application, application provides it with a State, a sessionmaker and arg.\\
+    State - stores the state of the application between launches.\\
+    sessionmaker - allows to get a session to communicate with the db.\\
+    arg - if a value was passed with the argument, it will be there.\\
+    '''
+    def __init__(self, expected_flags: Tuple[str, str], handler: Callable[[Controller, str], None]) -> None:
+        self._expected_flags = expected_flags
+        self._handler = handler
+
+    def get_expected_flags(self) -> Tuple[str, str]:
+        return self._expected_flags
+
+    def is_expecting(self, arg: str) -> bool:
+        '''
+        Checking, if handler expecting flag
+        @param arg: flag
+        '''
+        short, long = self._expected_flags
+        short = '-' + short.replace(':', '')
+        long = '--' + long.replace('=', '')
+        return arg in (short, long)
+
+    def handle(self, controller: Controller, value: str):
+        '''
+        Calling the callback function
+        '''
+        self._handler(controller, value)

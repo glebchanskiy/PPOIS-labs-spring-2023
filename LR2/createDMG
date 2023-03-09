@@ -1,0 +1,16 @@
+#!/bin/bash
+
+rm -rf dist
+params="-y"
+params+=" --clean"
+params+=" --windowed"
+params+=" --name lab2"
+params+=" -i /Users/glebchanskiy/subjects/pivo/sem4/lab2/lab2/app/asserts/icon.tiff"
+params+=" "`pwd`"/lab2/main.py"
+pyinstaller $params
+   
+pyinstaller -y --clean lab2.spec
+
+pushd dist
+hdiutil create ./Lab2.dmg -srcfolder Lab2.app -ov
+popd
