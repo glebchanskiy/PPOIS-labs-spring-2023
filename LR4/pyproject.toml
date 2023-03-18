@@ -14,6 +14,10 @@ tabulate = "^0.9.0"
 kivy = "^2.1.0"
 kivymd = "^1.1.1"
 pyyaml = "^6.0"
+fastapi = "^0.94.1"
+uvicorn = "^0.21.1"
+alembic = "^1.10.2"
+python-dotenv = "^1.0.0"
 
 
 [tool.poetry.group.dev.dependencies]
