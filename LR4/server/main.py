@@ -15,10 +15,12 @@ from config import DATABASE_URL
 from models import Card, CardAccount, Transfer
 from dto import CardDTO, CardAccountDTO, TransferDTO
 
+from repositories.card_repository import CardRepository
 
 engine = sql.create_engine(DATABASE_URL)
 Session = sessionmaker(bind=engine)
 
+card_repository = CardRepository(Session)
 
 dictConfig(log_config)
 logger = logging.getLogger("app")
@@ -32,59 +34,31 @@ app = FastAPI(
 
 @app.get("/cards")
 def get_cards() -> list[CardDTO]:
-
-    with Session() as session:
-        cards = session.query(Card).all()
-
-    return [CardDTO.from_orm(c) for c in cards]
+    return card_repository.get_all()
 
 
 @app.get("/cards/{id}")
 def get_card_by_id(id: int) -> Optional[CardDTO]:
-
-    with Session() as session:
-        target_card = session.query(Card).filter(Card.id == id).first()
-
-    return CardDTO.from_orm(target_card) if target_card is not None else None
+    return card_repository.get_by_id(id)
 
 @app.get("/cards/by-number/{number}")
 def get_card_by_number(number: str) -> Optional[CardDTO]:
-
-    with Session() as session:
-        target_card = session.query(Card).filter(Card.number==number).first()
-        # logger.info("target_card", target_card)
-
-    return CardDTO.from_orm(target_card) if target_card is not None else None
+    return card_repository.get_by_number(number)
 
 @app.post("/cards")
 def add_card(new_card: CardDTO) -> Response:
-    
-    with Session() as session:
-        session.add(Card(**new_card.dict()))
-        session.commit()
-
+    card_repository.save(new_card)
     return Response(status_code=200)
 
 @app.post("/cards/{id}")
 def update_card(updated_card: CardDTO, id: int) -> Response:
-
-    with Session() as session:
-        target_card = session.query(Card).filter(Card.id == id).first()
-        target_card.number = updated_card.number
-        target_card.pincode = updated_card.pincode
-        target_card.account_id = updated_card.account_id
-        session.commit()
-    
+    updated_card.id = id
+    card_repository.update(updated_card)
     return Response(status_code=200)
 
 @app.delete("/cards/{id}")
 def delete_card(id: int) -> Response:
-
-    with Session() as session:
-        card_to_be_deleted = session.query(Card).filter(Card.id == id).first()
-        session.delete(card_to_be_deleted)
-        session.commit()
-
+    card_repository.delete_by_id(id)
     return Response(status_code=200)
 
 
