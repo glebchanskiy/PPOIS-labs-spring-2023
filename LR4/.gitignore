@@ -2,7 +2,7 @@
 **/.AppleDouble
 **/.LSOverride
 **/__pycache__
-**/postgres-db
+**/postgres-data
 
 .idea
 .vscode
