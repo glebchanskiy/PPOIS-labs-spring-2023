@@ -2,9 +2,10 @@ import requests
 
 from lab4.core.repositories.abstract_repository import AbstractRepository
 from lab4.core.dto.dto import TransferDTO
+from lab4.core.config import SERVER_IP, SERVER_PORT
 
 class TransferRepository(AbstractRepository):
-    __api_url: str = "localhost:8000"
+    __api_url: str = f"{SERVER_IP}:{SERVER_PORT}"
     
     def get_by_id(self, id: int) -> TransferDTO:
         response = requests.get(f"http://{self.__api_url}/transfers/{id}")
