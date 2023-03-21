@@ -63,10 +63,6 @@ def AccountInfo(view: View):
 
             height=dp(500),
             size_hint_y=None,
-
-            # orientation='vertical',
-            # padding=100
-
         ),
         MDRaisedButton(
             text="BACK",
