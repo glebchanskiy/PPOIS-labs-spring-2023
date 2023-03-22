@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
-from repositories.abstract_repository import AbstractRepository
+from lab4.server.repositories.abstract_repository import AbstractRepository
 
-from models import Card
-from dto import CardDTO
+from lab4.server.models import Card
+from lab4.server.dto import CardDTO
 
 
 class CardRepository(AbstractRepository):
@@ -14,11 +14,9 @@ class CardRepository(AbstractRepository):
 
     def get_by_id(self, id: int) -> CardDTO:
         with self.__Session() as session:
-     
-            target_card = session.query(Card).filter(Card.id == id).first()
-        
+            card = session.query(Card).filter(Card.id == id).first()
 
-        return CardDTO.from_orm(target_card) if target_card is not None else None
+        return CardDTO.from_orm(card) if card is not None else None
 
     def get_all(self) -> list[CardDTO]:
         with self.__Session() as session:
@@ -34,11 +32,11 @@ class CardRepository(AbstractRepository):
 
     def update(self, updated_card: CardDTO):
         with self.__Session() as session:
-            target_card = session.query(Card).filter(
+            card_to_be_updated = session.query(Card).filter(
                 updated_card.id == id).first()
-            target_card.number = updated_card.number
-            target_card.pincode = updated_card.pincode
-            target_card.account_id = updated_card.account_id
+            card_to_be_updated.number = updated_card.number
+            card_to_be_updated.pincode = updated_card.pincode
+            card_to_be_updated.account_id = updated_card.account_id
             session.commit()
 
     def delete_by_id(self, id: int):
@@ -50,7 +48,7 @@ class CardRepository(AbstractRepository):
 
     def get_by_number(self, number: str):
         with self.__Session() as session:
-            target_card = session.query(Card).filter(
+            card = session.query(Card).filter(
                 Card.number == number).first()
 
-        return CardDTO.from_orm(target_card) if target_card is not None else None
+        return CardDTO.from_orm(card) if card is not None else None

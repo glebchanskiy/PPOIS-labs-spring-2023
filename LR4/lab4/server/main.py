@@ -1,29 +1,36 @@
+import uvicorn
+
 from fastapi import FastAPI
 from fastapi import Response, HTTPException
 
 from typing import Optional
 
-from logging.config import dictConfig
-from log_config import log_config
 import logging
+from logging.config import dictConfig
+from lab4.server.log_config import log_config
 
 import sqlalchemy as sql
 from sqlalchemy.orm import sessionmaker
 
-from config import DATABASE_URL
+from lab4.server.config import DATABASE_URL
+from lab4.server.dto import CardDTO, CardAccountDTO, TransferDTO
 
-from models import Card, CardAccount, Transfer
-from dto import CardDTO, CardAccountDTO, TransferDTO
+from lab4.server.repositories.card_repository import CardRepository
+from lab4.server.repositories.card_account_repository import CardAccountRepository
+from lab4.server.repositories.transfer_repository import TransferRepository
 
-from repositories.card_repository import CardRepository
+
+dictConfig(log_config)
+logger = logging.getLogger("app")
 
 engine = sql.create_engine(DATABASE_URL)
 Session = sessionmaker(bind=engine)
 
 card_repository = CardRepository(Session)
+card_account_repository = CardAccountRepository(Session)
+transfer_repository = TransferRepository(Session)
 
-dictConfig(log_config)
-logger = logging.getLogger("app")
+
 
 
 app = FastAPI(
@@ -64,91 +71,48 @@ def delete_card(id: int) -> Response:
 
 @app.get("/accounts")
 def get_accounts() -> list[CardAccountDTO]:
+    return card_account_repository.get_all()
 
-    with Session() as session:
-        accounts = session.query(CardAccount).all()
-
-    return [CardAccountDTO.from_orm(a) for a in accounts]
 
 
 @app.get("/accounts/{id}")
 def get_account_by_id(id: int) -> Optional[CardAccountDTO]:
-
-    with Session() as session:
-        target_account = session.query(CardAccount).filter(
-            CardAccount.id == id).first()
-
-    return CardAccountDTO.from_orm(target_account) if target_account is not None else None
+    return card_account_repository.get_by_id(id)
 
 @app.post("/accounts")
 def add_accounts(new_account: CardAccountDTO) -> Response:
-    
-    with Session() as session:
-        session.add(CardAccount(**new_account.dict()))
-        session.commit()
-
+    card_account_repository.save(new_account)
     return Response(status_code=200)
 
 @app.post("/accounts/{id}")
 def update_account(updated_account: CardAccountDTO, id: int) -> Response:
-
-    with Session() as session:
-        target_account = session.query(CardAccount).filter(CardAccount.id == id).first()
-        target_account.number = updated_account.number
-        target_account.currency = updated_account.currency
-        target_account.balance = updated_account.balance
-        session.commit()
-        logger.info(target_account.balance)
-        logger.info(updated_account.balance)
-    
+    updated_account.id = id
+    card_account_repository.update(update_account)
     return Response(status_code=200)
 
 @app.delete("/accounts/{id}")
 def delete_account(id: int) -> Response:
-
-    with Session() as session:
-        account_to_be_deleted = session.query(CardAccount).filter(CardAccount.id == id)
-        session.delete(account_to_be_deleted)
-        session.commit()
-
+    card_account_repository.delete_by_id(id)
     return Response(status_code=200)
 
 
 @app.get("/transfers")
 def get_transfers() -> list[TransferDTO]:
-
-    with Session() as session:
-        transfers = session.query(Transfer).all()
-
-    return [TransferDTO.from_orm(t) for t in transfers]
+    return transfer_repository.get_all()
 
 
 @app.get("/transfers/{id}")
 def get_transfer_by_id(id: int) -> Optional[TransferDTO]:
-
-    with Session() as session:
-        target_transfer = session.query(Transfer).filter(
-            Transfer.id == id).first()
-
-    return TransferDTO.from_orm(target_transfer) if target_transfer is not None else None
+    return transfer_repository.get_by_id(id)
 
 @app.get("/transfers/by-account-id/{id}")
 def get_transfers_by_account_id(id: int) -> list[TransferDTO]:
-
-    with Session() as session:
-        transfers = session.query(Transfer).filter(
-            Transfer.account_id == id).all()
-
-    return [TransferDTO.from_orm(t) for t in transfers]
+    return transfer_repository.get_by_account_id(id)
 
 
 @app.post("/transfers")
 def add_transfer(new_transfer: TransferDTO) -> Response:
-    
-    with Session() as session:
-        session.add(Transfer(**new_transfer.dict()))
-        session.commit()
-
+    transfer_repository.save(new_transfer)
     return Response(status_code=200)
 
 
@@ -159,10 +123,5 @@ def update_transfer(updated_transfer: TransferDTO, id: int) -> Response:
 
 @app.delete("/transfers/{id}")
 def delete_transfer(id: int) -> Response:
-
-    with Session() as session:
-        transfer_to_be_deleted = session.query(Transfer).filter(Transfer.id == id)
-        session.delete(transfer_to_be_deleted)
-        session.commit()
-
+    transfer_repository.delete_by_id(id)
     return Response(status_code=200)
