@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import sessionmaker
 from lab4.server.repositories.abstract_repository import AbstractRepository
 
 from lab4.server.models import Card
@@ -7,9 +7,9 @@ from lab4.server.dto import CardDTO
 
 class CardRepository(AbstractRepository):
 
-    def __init__(self, Session: Session) -> None:
+    def __init__(self, session: sessionmaker) -> None:
         super().__init__()
-        self.__Session = Session
+        self.__Session = session
 
 
     def get_by_id(self, id: int) -> CardDTO:
