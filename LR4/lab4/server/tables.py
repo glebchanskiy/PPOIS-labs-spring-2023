@@ -1,7 +1,6 @@
 from sqlalchemy import MetaData, Table, Integer, String, Column, ForeignKey, TIMESTAMP
 from datetime import datetime
-from enum import Enum
-from pydantic import BaseModel, Field, constr
+
 
 metadata = MetaData()
 
