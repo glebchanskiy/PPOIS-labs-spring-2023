@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from fastapi import Response
 from fastapi import HTTPException
 
-from lab4.server.db_engine import Session
+from lab4.server.db import Session
 from lab4.server.repositories import TransferRepository
 
 from lab4.server.dto import TransferDTO

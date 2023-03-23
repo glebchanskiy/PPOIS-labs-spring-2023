@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from fastapi import Response
 
-from lab4.server.db_engine import Session
+from lab4.server.db import Session
 from lab4.server.repositories import CardAccountRepository
 
 from lab4.server.dto import CardAccountDTO
