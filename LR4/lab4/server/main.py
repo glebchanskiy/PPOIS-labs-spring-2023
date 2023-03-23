@@ -2,11 +2,11 @@ from fastapi import FastAPI
 
 import logging
 from logging.config import dictConfig
-from lab4.server.log_config import log_config
+from lab4.server.config import logger_config
 
 from lab4.server.controllers import cards_router, accounts_router, transfers_router
 
-dictConfig(log_config)
+dictConfig(logger_config)
 logger = logging.getLogger("app")
 
 
