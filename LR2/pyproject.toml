@@ -3,7 +3,6 @@ name = "lab2"
 version = "0.1.0"
 description = ""
 authors = ["Levkov Gleb <Glebchanskiy@yandex.by>"]
-readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
